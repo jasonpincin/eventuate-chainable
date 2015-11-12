@@ -3,7 +3,6 @@ var test      = require('tape'),
     chainable = require('..')
 
 test('produced eventuate lazily consumes by default', function (t) {
-
     t.plan(2)
 
     var eventuateMap = chainable(function (eventuate, options, map) {
@@ -21,7 +20,6 @@ test('produced eventuate lazily consumes by default', function (t) {
 })
 
 test('produced eventuate eagerly consumes with lazy = false', function (t) {
-
     t.plan(2)
 
     var eventuateMap = chainable(function (eventuate, options, map) {

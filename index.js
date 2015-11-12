@@ -9,9 +9,9 @@ module.exports = function createEventuateChainableFactory (defaultOptions, creat
     }
     defaultOptions = assign({ lazy: true, destroyResidual: true}, defaultOptions)
 
-    return createEventuateChain
+    return createEventuateChainable
 
-    function createEventuateChain (upstreamEventuate, createOptions) {
+    function createEventuateChainable (upstreamEventuate, createOptions) {
         if (typeof upstreamEventuate.destroyed !== 'function')
             throw new TypeError('first argument should be a non-basic eventuate')
 

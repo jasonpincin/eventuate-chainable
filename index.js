@@ -41,13 +41,17 @@ module.exports = function createEventuateChainableFactory (defaultOptions, creat
 
         function upstreamConsumerRemoved () {
             consuming = false
-            if (!eventuate.isDestroyed() && !upstreamEventuate.isDestroyed())
+            if (upstreamEventuate.isDestroyed())
+                eventuate.destroy()
+            else if (!eventuate.isDestroyed())
                 addUpstreamConsumer()
         }
 
         function removeUpstreamConsumers () {
-            upstreamEventuate.destroyed.removeConsumer(eventuate.destroy)
-            upstreamEventuate.removeConsumer(upstreamConsumer)
+            if (this.returnValue) {
+                upstreamEventuate.destroyed.removeConsumer(eventuate.destroy)
+                upstreamEventuate.removeConsumer(upstreamConsumer)
+            }
         }
     }
 }

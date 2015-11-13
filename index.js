@@ -15,7 +15,7 @@ module.exports = function createEventuateChainableFactory (defaultOptions, creat
         if (typeof upstreamEventuate.destroyed !== 'function')
             throw new TypeError('first argument should be a non-basic eventuate')
 
-        var options = assign(defaultOptions, typeof createOptions === 'object' ? createOptions : undefined)
+        var options = assign({}, defaultOptions, typeof createOptions === 'object' ? createOptions : undefined)
 
         var eventuate        = upstreamEventuate.factory(options),
             consuming        = false,

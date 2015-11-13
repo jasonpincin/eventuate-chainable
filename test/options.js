@@ -36,3 +36,30 @@ test('factories accept default and create options', function (t) {
 
     function upstreamConsumer () {}
 })
+
+test('setting create options do not change default options', function (t) {
+    t.plan(3)
+
+    var callNum = 0
+    var event = eventuate()
+    var chain = chainable(function (eventuate, options) {
+        switch (callNum) {
+            case 0:
+                t.equal(options.lazy, true, 'lazy is true during 1st create')
+                break
+            case 1:
+                t.equal(options.lazy, false, 'lazy is false during 2nd create')
+                break
+            case 2:
+                t.equal(options.lazy, true, 'lazy is true during 3rd create')
+                break
+        }
+        callNum++
+
+        return function () {}
+    })
+
+    chain(event)
+    chain(event, { lazy: false })
+    chain(event)
+})

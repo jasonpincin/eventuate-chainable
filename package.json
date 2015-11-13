@@ -22,7 +22,7 @@
   "devDependencies": {
     "@jasonpincin/standard": "~5.0.0-8",
     "es5-shim": "~4.3.1",
-    "eventuate-core": "~3.0.0",
+    "eventuate-core": "~4.0.1",
     "faucet": "0.0.1",
     "istanbul": "~0.4.0",
     "opn": "~1.0.2",

@@ -1,6 +1,6 @@
 {
   "name": "eventuate-chainable",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Create eventuates that consume from other eventuates",
   "main": "index.js",
   "repository": {

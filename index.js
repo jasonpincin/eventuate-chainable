@@ -24,7 +24,7 @@ module.exports = function createEventuateChainableFactory (defaultOptions, creat
 
         eventuate.upstreamConsumer = upstreamConsumer
         eventuate.consume          = pre(eventuate.consume, addUpstreamConsumer)
-        eventuate.destroy          = post(eventuate.destroy, removeUpstreamConsumer)
+        eventuate.destroy          = post(eventuate.destroy, removeUpstreamConsumers)
 
         upstreamEventuate.destroyed(eventuate.destroy)
         upstreamConsumer.removed = upstreamConsumerRemoved
@@ -45,7 +45,8 @@ module.exports = function createEventuateChainableFactory (defaultOptions, creat
                 addUpstreamConsumer()
         }
 
-        function removeUpstreamConsumer () {
+        function removeUpstreamConsumers () {
+            upstreamEventuate.destroyed.removeConsumer(eventuate.destroy)
             upstreamEventuate.removeConsumer(upstreamConsumer)
         }
     }

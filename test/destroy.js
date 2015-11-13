@@ -36,3 +36,20 @@ test('does not lazily consume after being destroyed', function (t) {
     ucEvent(function () {})
     t.notOk(event.hasConsumer(ucEvent.upstreamConsumer), 'consumer NOT in upstream')
 })
+
+test('should remove upstream destroy handler', function (t) {
+    t.plan(2)
+
+    var eventuateMap = chainable(function (eventuate, options, map) {
+        return function upstreamConsumer (data) {
+            eventuate.produce(map(data))
+        }
+    })
+
+    var event = eventuate()
+    var ucEvent = eventuateMap(event, function (data) { return data.toUpperCase() })
+
+    t.ok(event.destroyed.hasConsumer())
+    ucEvent.destroy()
+    t.ok(!event.destroyed.hasConsumer())
+})

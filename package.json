@@ -29,7 +29,7 @@
     "phantomjs": "~1.9.18",
     "snazzy": "~2.0.1",
     "tape": "~4.2.1",
-    "zuul": "~3.6.0"
+    "zuul": "~3.7.2"
   },
   "dependencies": {
     "call-hook": "~2.1.0",

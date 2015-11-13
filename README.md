@@ -43,13 +43,13 @@ numbers.produce(4)
 var chainable = require('eventuate-chainable')
 ```
 
-### chainableFactory = chainable([defaultOptions], createUpstreamConsumer)
+#### chainableFactory = chainable([defaults], upstreamConsumerFactory)
 
 Create a chainable eventuate factory, `chainableFactory`, that can be used to
 create new eventuates that consume from other eventuates. Accepts an optional
-`defaultOptions`, which will set the default set of options for chainable
-eventuates created by the factory, and `createUpstreamConsumer`, which will be
-invoked when the factory is called to create an eventuate, and is expected to
+`defaults`, which will set the default set of options for chainable
+eventuates created by the factory, and `upstreamConsumerFactory`, which will be
+invoked when the `chainableFactory` is called to create an eventuate, and is expected to
 return a function that accepts data produced by an upstream eventuate.
 
 The factory returned has a signature of: 
@@ -60,21 +60,21 @@ function chainableFactory (upstreamEventuate [, options, arg3, arg4, ...]) {}
 
 The only required argument for the `chainableFactory` us the `upstreamConsumer`
 from which it will consume. If `options` are provided, they will be merged with
-`defaultOptions` set at the time the `chainableFactory` was created. 
+`defaults` set at the time the `chainableFactory` was created. 
 
-When `chainableFactory` is called, it will call `createUpstreamConsumer`, which
+When `chainableFactory` is called, it will call `upstreamConsumerFactory`, which
 is expected to have a signature of:
 
 ```javascript
-function createUpstreamConsumer (newEventuate, options [, arg3, arg4, ...]) {}
+function upstreamConsumerFactory (newEventuate, options [, arg3, arg4, ...]) {}
 ```
 
-The `createUpstreamConsumer` will be called with the newly created
+The `upstreamConsumerFactory` will be called with the newly created
 `newEventuate` (which will be returned by `chainableFactory`), `options` 
-(which has been merged with `defaultOptions`), and any other arguments that were
+(which has been merged with `defaults`), and any other arguments that were
 supplied to `chainableFactory`.
 
-`createUpstreamConsumer` is expected to return a function that will be called
+`upstreamConsumerFactory` is expected to return a function that will be called
 for each thing produced by `upstreamEventuate`. This function should have the
 signature of:
 

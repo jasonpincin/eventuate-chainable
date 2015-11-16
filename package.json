@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "call-hook": "~2.1.0",
+    "define-error": "~1.1.0",
     "object-assign": "~4.0.1"
   },
   "scripts": {

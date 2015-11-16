@@ -9,14 +9,16 @@ Create eventuates that consume from other eventuates.
 ## example
 
 ```javascript
-var eventuate          = require('eventuate-core'),
-    eventuateChainable = require('eventuate-chainable')
+var
+  eventuate          = require('eventuate-core'),
+  eventuateChainable = require('eventuate-chainable')
 
 // create a chainable eventuate mapper
-var map = eventuateChainable(function (eventuate, options, map) {
-    return function upstreamConsumer (data) {
-        eventuate.produce(map(data))
-    }
+var map = eventuateChainable(function eventuateMap (options, map) {
+  return function forEachValue (value) {
+    this.produce(map(value))
+    this.finish()
+  }
 })
 
 // create an eventuate
@@ -24,13 +26,13 @@ var numbers = eventuate()
 
 // map the eventuate using the chainable mapper we created above
 var squareNumbers = map(numbers, function (num) {
-    return num * num
+  return num * num
 })
 
 // log anything produced by squareNumbers
 squareNumbers(console.log)
 
-// produce stuff on numbers, watch as the square of it is logged via squareNumbers
+// produce stuff on numbers, the square of it is logged via squareNumbers
 numbers.produce(1)
 numbers.produce(2)
 numbers.produce(3)
@@ -43,14 +45,15 @@ numbers.produce(4)
 var chainable = require('eventuate-chainable')
 ```
 
-#### chainableFactory = chainable([defaults], upstreamConsumerFactory)
+#### chainableFactory = chainable([defaults], producerFactory)
 
 Create a chainable eventuate factory, `chainableFactory`, that can be used to
 create new eventuates that consume from other eventuates. Accepts an optional
 `defaults`, which will set the default set of options for chainable
-eventuates created by the factory, and `upstreamConsumerFactory`, which will be
-invoked when the `chainableFactory` is called to create an eventuate, and is expected to
-return a function that accepts data produced by an upstream eventuate.
+eventuates created by the factory, and `producerFactory`, which will be
+invoked when the `chainableFactory` is called to create an eventuate, and is 
+expected to return a function that accepts data produced by an upstream 
+eventuate.
 
 The factory returned has a signature of: 
 
@@ -62,29 +65,46 @@ The only required argument for the `chainableFactory` us the `upstreamConsumer`
 from which it will consume. If `options` are provided, they will be merged with
 `defaults` set at the time the `chainableFactory` was created. 
 
-When `chainableFactory` is called, it will call `upstreamConsumerFactory`, which
+When `chainableFactory` is called, it will call `producerFactory`, which
 is expected to have a signature of:
 
 ```javascript
-function upstreamConsumerFactory (newEventuate, options [, arg3, arg4, ...]) {}
+function producerFactory (options [, arg3, arg4, ...]) {}
 ```
 
-The `upstreamConsumerFactory` will be called with the newly created
-`newEventuate` (which will be returned by `chainableFactory`), `options` 
-(which has been merged with `defaults`), and any other arguments that were
-supplied to `chainableFactory`.
+The `producerFactory` will be called with `options` (which has been merged with 
+`defaults`), and any other arguments that were supplied to `chainableFactory`
+after `options`.
 
-`upstreamConsumerFactory` is expected to return a function that will be called
+`producerFactory` is expected to return a function that will be called
 for each thing produced by `upstreamEventuate`. This function should have the
 signature of:
 
 ```javascript
-function upstreamConsumer (data) {}
+function producer (data) {}
 ```
+
+This `producer` function is called in the context of an object that offers the
+following:
+
+* `produce(data)` - call this to produce `data` from the `eventuate` created by
+  `chainableFactory`.
+* `error(err)` - call this to produce an error from the `eventuate` created by
+  `chainableFactory`. This function will insure whatever is passed is wrapped in
+  an `Error` object if it's not already an `instanceof` `Error`.
+* `finish()` - call this to signal no more data or errors will be produced. It
+  is important to call this, or all future `produce` calls could be buffered.
 
 ## behaviour
 
 Chainable eventuates produced in this way have the following characteristics:
+
+### unordered by default
+
+Chainable eventuates, by default, do not gaurantee that the order they consume
+data is the order they will produce it. This can be changed by setting the
+option `{ order: true }`. Be warned, that this will cause buffering, and should
+be used with caution.
 
 ### lazy consumption
 

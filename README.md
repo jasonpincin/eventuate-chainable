@@ -88,11 +88,13 @@ This `producer` function is called in the context of an object that offers the
 following:
 
 * `produce(data)` - call this to produce `data` from the `eventuate` created by
-  `chainableFactory`. Returns reference to context object.
+  `chainableFactory`. Returns reference to context object. If the eventuate was
+  destroyed prior to calling this, the data will be dropped.
 * `error(err)` - call this to produce an error from the `eventuate` created by
   `chainableFactory`. This function will insure whatever is passed is wrapped in
   an `Error` object if it's not already an `instanceof` `Error`. Returns a
-  reference to the context object.
+  reference to the context object. If the eventuate was destroyed prior to
+  calling this, the data will be dropped.
 * `finish()` - call this to signal no more data or errors will be produced. It
   is important to call this, or all future `produce` calls could be buffered.
 

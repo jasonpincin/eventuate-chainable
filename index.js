@@ -22,11 +22,12 @@ module.exports = function createChainableFactory (defaults, producerFactory) {
       throw new TypeError('first argument should be a non-basic eventuate')
 
     var
-      gotopts = typeof createOptions === 'object',
-      options = assign({}, defaults, gotopts ? createOptions : undefined),
-      seq     = 0,
-      seqWait = 0,
-      queue   = {}
+      gotopts  = typeof createOptions === 'object',
+      options  = assign({}, defaults, gotopts ? createOptions : undefined),
+      seq      = 0,
+      seqWait  = 0,
+      finished = 0,
+      queue    = {}
 
     var
       eventuate = upstreamEventuate.factory(options),
@@ -59,15 +60,16 @@ module.exports = function createChainableFactory (defaults, producerFactory) {
         eventuate.produce(data)
     }
 
-    function onFinish (seq) {
-      var produced = seq === seqWait
-      if (produced && !Object.keys(queue).length)
-        seq = seqWait = 0
-      else if (produced) while (queue[++seqWait]) {
+    function onFinish (finishedSeq) {
+      finished++
+      var produced = (finishedSeq === seqWait)
+      if (produced) while (queue[++seqWait]) {
         var data = queue[seqWait]
         delete queue[seqWait]
         eventuate.produce(data)
       }
+      if (seq - finished === 0)
+        seq = seqWait = finished = 0
     }
 
     function upstreamConsumerRemoved () {

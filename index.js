@@ -1,57 +1,95 @@
-var pre       = require('call-hook/pre'),
-    post      = require('call-hook/post'),
-    assign    = require('object-assign')
+var
+  pre             = require('call-hook/pre'),
+  post            = require('call-hook/post'),
+  assign          = require('object-assign'),
+  producerContext = require('./lib/producer-context')
 
-module.exports = function createEventuateChainableFactory (defaultOptions, createUpstreamConsumer) {
-    if (typeof defaultOptions === 'function') {
-        createUpstreamConsumer = defaultOptions
-        defaultOptions = undefined
+module.exports = function createChainableFactory (defaults, producerFactory) {
+  if (typeof defaults === 'function') {
+    producerFactory = defaults
+    defaults = undefined
+  }
+  defaults = assign({
+    lazy           : true,
+    order          : false,
+    destroyResidual: true
+  }, defaults)
+
+  return createEventuateChainable
+
+  function createEventuateChainable (upstreamEventuate, createOptions) {
+    if (typeof upstreamEventuate.destroyed !== 'function')
+      throw new TypeError('first argument should be a non-basic eventuate')
+
+    var
+      gotopts = typeof createOptions === 'object',
+      options = assign({}, defaults, gotopts ? createOptions : undefined),
+      seq     = 0,
+      seqWait = 0,
+      queue   = {}
+
+    var
+      eventuate = upstreamEventuate.factory(options),
+      consuming = false,
+      args      = Array.prototype.slice.call(arguments, gotopts ? 2 : 1),
+      producer  = producerFactory.apply(undefined, [options].concat(args))
+
+    eventuate.upstreamConsumer = upstreamConsumer
+    eventuate.consume          = pre(eventuate.consume, addUpstreamConsumer)
+    eventuate.destroy          = post(eventuate.destroy, removeUpstreamConsumer)
+
+    upstreamEventuate.destroyed(eventuate.destroy)
+    upstreamConsumer.removed = upstreamConsumerRemoved
+
+    if (!options.lazy)
+      addUpstreamConsumer()
+    return eventuate
+
+    function upstreamConsumer (data) {
+      var ctx = options.order
+        ? producerContext(seq++, onProduce, onFinish)
+        : producerContext(seq, onProduce)
+      producer.call(ctx, data)
     }
-    defaultOptions = assign({ lazy: true, destroyResidual: true}, defaultOptions)
 
-    return createEventuateChainable
-
-    function createEventuateChainable (upstreamEventuate, createOptions) {
-        if (typeof upstreamEventuate.destroyed !== 'function')
-            throw new TypeError('first argument should be a non-basic eventuate')
-
-        var options = assign({}, defaultOptions, typeof createOptions === 'object' ? createOptions : undefined)
-
-        var eventuate        = upstreamEventuate.factory(options),
-            consuming        = false,
-            args             = Array.prototype.slice.call(arguments, typeof createOptions === 'object' ? 2 : 1),
-            upstreamConsumer = createUpstreamConsumer.apply(undefined, [eventuate, options].concat(args))
-
-        eventuate.upstreamConsumer = upstreamConsumer
-        eventuate.consume          = pre(eventuate.consume, addUpstreamConsumer)
-        eventuate.destroy          = post(eventuate.destroy, removeUpstreamConsumers)
-
-        upstreamEventuate.destroyed(eventuate.destroy)
-        upstreamConsumer.removed = upstreamConsumerRemoved
-        if (!options.lazy) addUpstreamConsumer()
-
-        return eventuate
-
-        function addUpstreamConsumer () {
-            if (!consuming && !eventuate.isDestroyed()) {
-                upstreamEventuate.consume(upstreamConsumer)
-                consuming = true
-            }
-        }
-
-        function upstreamConsumerRemoved () {
-            consuming = false
-            if (upstreamEventuate.isDestroyed())
-                eventuate.destroy()
-            else if (!eventuate.isDestroyed())
-                addUpstreamConsumer()
-        }
-
-        function removeUpstreamConsumers () {
-            if (this.returnValue) {
-                upstreamEventuate.destroyed.removeConsumer(eventuate.destroy)
-                upstreamEventuate.removeConsumer(upstreamConsumer)
-            }
-        }
+    function onProduce (seq, data) {
+      if (options.order && seq !== seqWait)
+        queue[seq] = data
+      else
+        eventuate.produce(data)
     }
+
+    function onFinish (seq) {
+      var produced = seq === seqWait
+      if (produced && !Object.keys(queue).length)
+        seq = seqWait = 0
+      else if (produced) while (queue[++seqWait]) {
+        var data = queue[seqWait]
+        delete queue[seqWait]
+        eventuate.produce(data)
+      }
+    }
+
+    function upstreamConsumerRemoved () {
+      consuming = false
+      if (upstreamEventuate.isDestroyed())
+        eventuate.destroy()
+      else if (!eventuate.isDestroyed())
+        addUpstreamConsumer()
+    }
+
+    function addUpstreamConsumer () {
+      if (!consuming && !eventuate.isDestroyed()) {
+        upstreamEventuate.consume(upstreamConsumer)
+        consuming = true
+      }
+    }
+
+    function removeUpstreamConsumer () {
+      if (this.returnValue) {
+        upstreamEventuate.destroyed.removeConsumer(eventuate.destroy)
+        upstreamEventuate.removeConsumer(upstreamConsumer)
+      }
+    }
+  }
 }

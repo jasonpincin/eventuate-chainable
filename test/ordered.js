@@ -115,3 +115,43 @@ test('calling finish twice has no affect', function (t) {
     t.deepEqual(orderedList, ['A', 'B'])
   }, 100)
 })
+
+test('does not attempt to produce if destroyed', function (t) {
+  t.plan(1)
+
+  var
+    timeouts = [10, 20, 50, 100, 30, 15, 25],
+    count    = 0
+
+  var eventuateMap = chainable(function (options, map) {
+    var idx = 0
+    return function upstreamConsumer (data) {
+      var self = this
+      setTimeout(function () {
+        self.produce(map(data)).finish()
+        count++
+      }, timeouts[idx++])
+    }
+  })
+
+  var
+    event = eventuate(),
+    ucEvent = eventuateMap(event, function (data) {
+      return data.toUpperCase()
+    }).consume(function () {
+      t.fail('nothing should be produced')
+    })
+
+  event.produce('a')
+  event.produce('b')
+  event.produce('c')
+  event.produce('d')
+  event.produce('e')
+  event.produce('f')
+  event.produce('g')
+  setImmediate(ucEvent.destroy)
+
+  setTimeout(function () {
+    t.equal(count, 7)
+  }, 200)
+})

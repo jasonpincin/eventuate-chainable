@@ -57,7 +57,7 @@ module.exports = function createChainableFactory (defaults, producerFactory) {
       if (options.order && seq !== seqWait)
         queue[seq] = data
       else
-        eventuate.produce(data)
+        produceConditionally(data)
     }
 
     function onFinish (finishedSeq) {
@@ -66,10 +66,15 @@ module.exports = function createChainableFactory (defaults, producerFactory) {
       if (produced) while (queue[++seqWait]) {
         var data = queue[seqWait]
         delete queue[seqWait]
-        eventuate.produce(data)
+        produceConditionally(data)
       }
       if (seq - finished === 0)
         seq = seqWait = finished = 0
+    }
+
+    function produceConditionally (data) {
+      if (!eventuate.isDestroyed())
+        eventuate.produce(data)
     }
 
     function upstreamConsumerRemoved () {

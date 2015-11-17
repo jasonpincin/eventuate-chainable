@@ -1,8 +1,7 @@
-var
-  pre             = require('call-hook/pre'),
-  post            = require('call-hook/post'),
-  assign          = require('object-assign'),
-  producerContext = require('./lib/producer-context')
+var pre             = require('call-hook/pre'),
+    post            = require('call-hook/post'),
+    assign          = require('object-assign'),
+    producerContext = require('./lib/producer-context')
 
 module.exports = function createChainableFactory (defaults, producerFactory) {
   if (typeof defaults === 'function') {
@@ -12,6 +11,7 @@ module.exports = function createChainableFactory (defaults, producerFactory) {
   defaults = assign({
     lazy           : true,
     order          : false,
+    concurrency    : Infinity,
     destroyResidual: true
   }, defaults)
 
@@ -21,19 +21,19 @@ module.exports = function createChainableFactory (defaults, producerFactory) {
     if (typeof upstreamEventuate.destroyed !== 'function')
       throw new TypeError('first argument should be a non-basic eventuate')
 
-    var
-      gotopts  = typeof createOptions === 'object',
-      options  = assign({}, defaults, gotopts ? createOptions : undefined),
-      seq      = 0,
-      seqWait  = 0,
-      finished = 0,
-      queue    = {}
+    var gotopts     = typeof createOptions === 'object',
+        options     = assign({}, defaults, gotopts ? createOptions : undefined),
+        seq         = 0,
+        seqWait     = 0,
+        outstanding = 0,
+        opQueue     = [],
+        finished    = 0,
+        orderQueue  = {}
 
-    var
-      eventuate = upstreamEventuate.factory(options),
-      consuming = false,
-      args      = Array.prototype.slice.call(arguments, gotopts ? 2 : 1),
-      producer  = producerFactory.apply(undefined, [options].concat(args))
+    var eventuate = upstreamEventuate.factory(options),
+        consuming = false,
+        args      = Array.prototype.slice.call(arguments, gotopts ? 2 : 1),
+        producer  = producerFactory.apply(undefined, [options].concat(args))
 
     eventuate.upstreamConsumer = upstreamConsumer
     eventuate.consume          = pre(eventuate.consume, addUpstreamConsumer)
@@ -47,29 +47,44 @@ module.exports = function createChainableFactory (defaults, producerFactory) {
     return eventuate
 
     function upstreamConsumer (data) {
+      if (outstanding < options.concurrency)
+        start(data)
+      else
+        opQueue.push(data)
+    }
+
+    function start (data) {
       var ctx = options.order
-        ? producerContext(seq++, onProduce, onFinish)
-        : producerContext(seq, onProduce)
+        ? producerContext(seq++, onProduce, deliverPendingOrdered)
+        : producerContext(seq, onProduce, startNext)
       producer.call(ctx, data)
+      outstanding++
     }
 
     function onProduce (seq, data) {
       if (options.order && seq !== seqWait)
-        queue[seq] = data
+        orderQueue[seq] = data
       else
         produceConditionally(data)
     }
 
-    function onFinish (finishedSeq) {
+    function deliverPendingOrdered (finishedSeq) {
       finished++
       var produced = (finishedSeq === seqWait)
-      if (produced) while (queue[++seqWait]) {
-        var data = queue[seqWait]
-        delete queue[seqWait]
+      if (produced) while (orderQueue[++seqWait]) {
+        var data = orderQueue[seqWait]
+        delete orderQueue[seqWait]
         produceConditionally(data)
       }
       if (seq - finished === 0)
         seq = seqWait = finished = 0
+      startNext()
+    }
+
+    function startNext () {
+      outstanding--
+      while (outstanding < options.concurrency && opQueue.length > 0)
+        start(opQueue.pop())
     }
 
     function produceConditionally (data) {

@@ -1,7 +1,6 @@
-var
-  test      = require('tape'),
-  eventuate = require('eventuate-core'),
-  chainable = require('..')
+var test      = require('tape'),
+    eventuate = require('eventuate-core'),
+    chainable = require('..')
 
 test('residual chainable eventuate destroyed by default', function (t) {
   t.plan(1)

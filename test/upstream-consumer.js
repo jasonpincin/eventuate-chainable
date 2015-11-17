@@ -1,7 +1,6 @@
-var
-  test      = require('tape'),
-  eventuate = require('eventuate-core'),
-  chainable = require('..')
+var test      = require('tape'),
+    eventuate = require('eventuate-core'),
+    chainable = require('..')
 
 test('replaces upstream consumer, unless upstream is destroyed', function (t) {
   t.plan(3)

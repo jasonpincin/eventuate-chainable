@@ -9,9 +9,8 @@ Create eventuates that consume from other eventuates.
 ## example
 
 ```javascript
-var
-  eventuate          = require('eventuate-core'),
-  eventuateChainable = require('eventuate-chainable')
+var eventuate          = require('eventuate-core'),
+    eventuateChainable = require('eventuate-chainable')
 
 // create a chainable eventuate mapper
 var map = eventuateChainable(function eventuateMap (options, map) {

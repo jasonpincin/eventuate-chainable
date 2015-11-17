@@ -1,8 +1,7 @@
-var
-  test          = require('tape'),
-  eventuate     = require('eventuate-core'),
-  chainable     = require('..'),
-  FinishedError = require('../errors').FinishedError
+var test          = require('tape'),
+    eventuate     = require('eventuate-core'),
+    chainable     = require('..'),
+    FinishedError = require('../errors').FinishedError
 
 test('cannot produce after finish', function (t) {
   t.plan(1)

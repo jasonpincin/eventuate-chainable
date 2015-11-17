@@ -1,7 +1,6 @@
-var
-  test      = require('tape'),
-  eventuate = require('eventuate-core'),
-  chainable = require('..')
+var test      = require('tape'),
+    eventuate = require('eventuate-core'),
+    chainable = require('..')
 
 test('factories accept default and create options', function (t) {
   t.plan(12)

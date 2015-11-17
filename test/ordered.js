@@ -1,7 +1,6 @@
-var
-  test      = require('tape'),
-  eventuate = require('eventuate-core'),
-  chainable = require('..')
+var test      = require('tape'),
+    eventuate = require('eventuate-core'),
+    chainable = require('..')
 
 test('gaurantees order when asked', function (t) {
   t.plan(2)
@@ -18,10 +17,9 @@ test('gaurantees order when asked', function (t) {
     }
   })
 
-  var
-    event = eventuate(),
-    unorderedList = [],
-    orderedList   = []
+  var event = eventuate(),
+      unorderedList = [],
+      orderedList   = []
   eventuateMap(event, function (data) {
     return data.toUpperCase()
   }).consume(function (l) {
@@ -119,9 +117,8 @@ test('calling finish twice has no affect', function (t) {
 test('does not attempt to produce if destroyed', function (t) {
   t.plan(1)
 
-  var
-    timeouts = [10, 20, 50, 100, 30, 15, 25],
-    count    = 0
+  var timeouts = [10, 20, 50, 100, 30, 15, 25],
+      count    = 0
 
   var eventuateMap = chainable(function (options, map) {
     var idx = 0
@@ -134,13 +131,12 @@ test('does not attempt to produce if destroyed', function (t) {
     }
   })
 
-  var
-    event = eventuate(),
-    ucEvent = eventuateMap(event, function (data) {
-      return data.toUpperCase()
-    }).consume(function () {
-      t.fail('nothing should be produced')
-    })
+  var event = eventuate()
+  var ucEvent = eventuateMap(event, function (data) {
+    return data.toUpperCase()
+  }).consume(function () {
+    t.fail('nothing should be produced')
+  })
 
   event.produce('a')
   event.produce('b')

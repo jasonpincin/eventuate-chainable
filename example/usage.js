@@ -1,6 +1,5 @@
-var
-  eventuate          = require('eventuate-core'),
-  eventuateChainable = require('..')
+var eventuate          = require('eventuate-core'),
+    eventuateChainable = require('..')
 
 // create a chainable eventuate mapper
 var map = eventuateChainable(function eventuateMap (options, map) {

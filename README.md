@@ -99,9 +99,10 @@ following:
 
 ## behaviour
 
-Chainable eventuates produced in this way have the following characteristics:
+Chainable eventuates produced in this way have the following (default) 
+characteristics:
 
-### unordered by default
+### unordered
 
 Chainable eventuates, by default, do not gaurantee that the order they consume
 data is the order they will produce it. This can be changed by setting the
@@ -113,6 +114,13 @@ be used with caution.
 Chainable eventuates do not start consuming from their upstream eventuate until
 a consumer has been added. This can be changed by setting the option `{ lazy:
 false }`.
+
+## infinite concurrency 
+
+Async producers have no limits on concurrency by default. You can change this by
+setting the option `{ concurrency: X }` where `X` is the max level of
+concurrency. Be warned, this will cause buffering when maximum concurrency is
+reached. Pending events will be buffered and started as able.
 
 ### upstream consumer maintained
 

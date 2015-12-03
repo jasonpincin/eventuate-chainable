@@ -21,6 +21,7 @@
   "contributors": [],
   "devDependencies": {
     "@jasonpincin/standard": "~5.3.1-2",
+    "basic-eventuate": "0.0.0",
     "es5-shim": "~4.3.1",
     "eventuate-core": "~4.0.1",
     "faucet": "0.0.1",
@@ -32,7 +33,7 @@
     "zuul": "~3.7.2"
   },
   "dependencies": {
-    "call-hook": "~2.1.0",
+    "call-hook": "~3.0.0",
     "define-error": "~1.1.0",
     "object-assign": "~4.0.1"
   },

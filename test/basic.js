@@ -1,5 +1,5 @@
 var test           = require('tape'),
-    basicEventuate = require('eventuate-core/basic'),
+    basicEventuate = require('basic-eventuate'),
     chainable      = require('..')
 
 test('basic eventuates not supported', function (t) {

@@ -134,7 +134,8 @@ test('does not attempt to produce if destroyed', function (t) {
   var event = eventuate()
   var ucEvent = eventuateMap(event, function (data) {
     return data.toUpperCase()
-  }).consume(function () {
+  })
+  ucEvent.consume(function () {
     t.fail('nothing should be produced')
   })
 
@@ -145,7 +146,9 @@ test('does not attempt to produce if destroyed', function (t) {
   event.produce('e')
   event.produce('f')
   event.produce('g')
-  setImmediate(ucEvent.destroy)
+  setImmediate(function () {
+    ucEvent.destroy()
+  })
 
   setTimeout(function () {
     t.equal(count, 7)

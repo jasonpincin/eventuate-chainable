@@ -14,7 +14,8 @@ test('residual chainable eventuate destroyed by default', function (t) {
   var event = eventuate()
   var ucEvent = eventuateMap(event, function (data) {
     return data.toUpperCase()
-  }).consume(function () {})
+  })
+  ucEvent.consume(function () {})
   ucEvent.removeAllConsumers()
 
   t.ok(ucEvent.isDestroyed(), 'destroyed after last consumer removed')
@@ -34,7 +35,8 @@ test('residual not destroyed if destroyResidual = false', function (t) {
   var event = eventuate()
   var ucEvent = eventuateMap(event, function (data) {
     return data.toUpperCase()
-  }).consume(function () {})
+  })
+  ucEvent.consume(function () {})
   ucEvent.removeAllConsumers()
 
   t.ok(!ucEvent.isDestroyed(), 'not destroyed after last consumer removed')

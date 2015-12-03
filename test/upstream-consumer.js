@@ -14,7 +14,8 @@ test('replaces upstream consumer, unless upstream is destroyed', function (t) {
   var event = eventuate()
   var ucEvent = eventuateMap(event, function (data) {
     return data.toUpperCase()
-  }).consume(function () {})
+  })
+  ucEvent.consume(function () {})
 
   t.ok(event.hasConsumer(ucEvent.upstreamConsumer),
        'upstreamConsumer present before removeAllConsumers')
@@ -38,7 +39,8 @@ test('upstream consumer removed when chainable is destroyed', function (t) {
   var event = eventuate()
   var ucEvent = eventuateMap(event, function (data) {
     return data.toUpperCase()
-  }).consume(function () {})
+  })
+  ucEvent.consume(function () {})
 
   t.ok(event.hasConsumer(ucEvent.upstreamConsumer),
        'upstreamConsumer present before destroy')

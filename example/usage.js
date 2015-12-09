@@ -1,6 +1,27 @@
 var eventuate          = require('eventuate-core'),
     eventuateChainable = require('..')
 
+// function eventuateMap (upstream, options, map) {
+//
+//   var eventuate = upstream.factory(options)
+//   assign(eventuate, chainable.properties)
+//   chainable.call(eventuate, upstream, options, function forEach (value) {
+//     this.produce(map(value))
+//     // or eventuate.produceError(err)
+//     this.finish()
+//   })
+// }
+//
+// Function EventuateMap (upstream, options, map) {
+//   chainable.call(this, upstream, options, function forEachValue (value) {
+//     this.produce(map(value))
+//     this.finish()
+//   })
+// }
+// assign(EventuateMap.prototype, chainable.properties, {
+//   constructor: EventuateMap
+// })
+
 // create a chainable eventuate mapper
 var map = eventuateChainable(function eventuateMap (options, map) {
   return function forEachValue (value) {

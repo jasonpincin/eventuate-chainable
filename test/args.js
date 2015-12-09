@@ -2,6 +2,13 @@ var test      = require('tape'),
     eventuate = require('eventuate-core'),
     chainable = require('..')
 
+test('requires an eventuate', function (t) {
+  t.plan(1)
+  t.throws(function () {
+    chainable(function () {})({ /* not an eventuate */ })
+  })
+})
+
 test('chainable factory is passed options, and all other args', function (t) {
   t.plan(10)
 

@@ -19,18 +19,19 @@ module.exports = assign(function eventuate (upstream, options, reproducer) {
 
   var self = this
   assign(this, {
-    upstreamConsumer: upstreamConsumer,
-    _options        : options,
-    _seq            : 0,
-    _seqWait        : 0,
-    _outstanding    : 0,
-    _opQueue        : [],
-    _finished       : 0,
-    _orderQueue     : {},
-    _consuming      : null,
-    _upstream       : upstream,
-    _destroySelf    : _destroySelf,
-    _reproducer     : reproducer
+    upstreamConsumer     : upstreamConsumer,
+    upstreamErrorConsumer: upstreamErrorConsumer,
+    _options             : options,
+    _seq                 : 0,
+    _seqWait             : 0,
+    _outstanding         : 0,
+    _opQueue             : [],
+    _finished            : 0,
+    _orderQueue          : {},
+    _upstreamConsumption : null,
+    _upstream            : upstream,
+    _destroySelf         : _destroySelf,
+    _reproducer          : reproducer
   })
 
   assign(upstreamConsumer, {
@@ -50,8 +51,12 @@ module.exports = assign(function eventuate (upstream, options, reproducer) {
       self._opQueue.push(data)
   }
 
+  function upstreamErrorConsumer (err) {
+    self.produceError(err)
+  }
+
   function upstreamConsumerRemoved () {
-    self._consuming = null
+    self._upstreamConsumption = null
     if (self._upstream.isDestroyed())
       self.destroy()
     else if (!self.isDestroyed())
@@ -63,6 +68,7 @@ module.exports = assign(function eventuate (upstream, options, reproducer) {
   }
 }, { properties: {
   consume                : consume,
+  removeConsumer         : removeConsumer,
   destroy                : destroy,
   _start                 : _start,
   _onProduce             : _onProduce,
@@ -80,6 +86,13 @@ module.exports = assign(function eventuate (upstream, options, reproducer) {
 function consume () {
   this._addUpstreamConsumer()
   return this._upstream.consume.apply(this, arguments)
+}
+
+function removeConsumer () {
+  var result = this._upstream.removeConsumer.apply(this, arguments)
+  if (!this.hasConsumer())
+    this._removeUpstreamConsumer()
+  return result
 }
 
 function destroy () {
@@ -131,27 +144,32 @@ function _produceConditionally (data) {
 
 function _addUpstreamConsumer () {
   var self = this.context || this
-  if (!self._consuming && !self.isDestroyed())
-    self._consuming = self._upstream.consume(self.upstreamConsumer)
+  if (!self._upstreamConsumption && !self.isDestroyed()) {
+    self._upstreamConsumption = self._upstream.consume(
+      self.upstreamConsumer,
+      self.upstreamErrorConsumer)
+  }
 }
 
 function _removeUpstreamConsumer () {
-  this._upstream.destroyed.removeConsumer(this._destroySelf)
-  this._upstream.removeConsumer(this.upstreamConsumer)
+  if (this._upstreamConsumption) {
+    this._upstream.destroyed.removeConsumer(this._destroySelf)
+    this._upstreamConsumption.end()
+  }
 }
 
 function _setSaturated (consumer) {
   if (!this._saturated) {
     this._saturated = true
     this.saturated.produce(consumer)
-    if (this._consuming) this._consuming.saturated()
+    if (this._upstreamConsumption) this._upstreamConsumption.saturated()
   }
 }
 
 function _setUnsaturated () {
   this._saturated = false
   this.unsaturated.produce()
-  if (this._consuming) this._consuming.unsaturated()
+  if (this._upstreamConsumption) this._upstreamConsumption.unsaturated()
 }
 
 function _consumerUnsaturated (consumer) {

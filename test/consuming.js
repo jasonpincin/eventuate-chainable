@@ -5,20 +5,20 @@ var test      = require('tape'),
 test('produced eventuate lazily consumes by default', function (t) {
   t.plan(2)
 
-  var eventuateMap = chainable(function (options, map) {
+  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
     return function upstreamConsumer (data) {
       this.produce(map(data)).finish()
     }
   })
 
   var event = eventuate()
-  var ucEvent = eventuateMap(event, function (data) {
+  var ucEvent = new EventuateMap(event, function (data) {
     return data.toUpperCase()
   })
 
   t.ok(!event.hasConsumer(ucEvent.upstreamConsumer),
        'does not immediately add consumer to upstream eventuate')
-  ucEvent(function () {})
+  ucEvent.consume(function () {})
   t.ok(event.hasConsumer(ucEvent.upstreamConsumer),
        'lazily adds consumer to upstream eventuate')
 })
@@ -26,14 +26,14 @@ test('produced eventuate lazily consumes by default', function (t) {
 test('produced eventuate eagerly consumes with lazy = false', function (t) {
   t.plan(2)
 
-  var eventuateMap = chainable(function (options, map) {
+  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
     return function upstreamConsumer (data) {
       this.produce(map(data)).finish()
     }
   })
 
   var event = eventuate()
-  var ucEvent = eventuateMap(event, { lazy: false }, function (data) {
+  var ucEvent = new EventuateMap(event, { lazy: false }, function (data) {
     t.pass('executed map')
     return data.toUpperCase()
   })

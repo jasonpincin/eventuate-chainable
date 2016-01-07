@@ -5,18 +5,18 @@ var test      = require('tape'),
 test('should create a mapper', function (t) {
   t.plan(1)
 
-  var eventuateMap = chainable(function (options, map) {
+  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
     return function upstreamConsumer (data) {
       this.produce(map(data)).finish()
     }
   })
 
   var event = eventuate()
-  var ucEvent = eventuateMap(event, function (data) {
+  var ucEvent = new EventuateMap(event, function (data) {
     return data.toUpperCase()
   })
 
-  ucEvent(function (data) {
+  ucEvent.consume(function (data) {
     t.equal(data, 'HI')
   })
 

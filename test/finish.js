@@ -6,7 +6,7 @@ var test          = require('tape'),
 test('cannot produce after finish', function (t) {
   t.plan(1)
 
-  var eventuateMap = chainable(function (options, map) {
+  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
     return function upstreamConsumer (data) {
       var self = this
       this.produce(map(data)).finish()
@@ -17,7 +17,7 @@ test('cannot produce after finish', function (t) {
   })
 
   var event = eventuate()
-  eventuateMap(event, { lazy: false }, function (data) {
+  event.upper = new EventuateMap(event, { lazy: false }, function (data) {
     return data.toUpperCase()
   })
   event.produce('a')

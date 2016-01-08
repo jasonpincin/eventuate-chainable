@@ -3,21 +3,19 @@ var test      = require('tape'),
     chainable = require('..')
 
 test('errors are splittable', function (t) {
-  t.plan(2)
+  t.plan(1)
 
-  var eventuateMap = chainable(function (options, map) {
+  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
     return function upstreamConsumer (data) {
-      this.error(new Error('boom'))
-      this.error('boom')
-      this.finish()
+      this.produceError(new Error('boom')).finish()
     }
   })
 
   var event = eventuate()
-  eventuateMap(event, function (data) {
+  new EventuateMap(event, function (data) {
     return data.toUpperCase()
-  }).consume(function (data) {
-    t.ok(data instanceof Error, 'got an error')
+  }).consume(function () {}, function (err) {
+    t.ok(err instanceof Error, 'got an error')
   })
   event.produce('a')
 })

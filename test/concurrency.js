@@ -7,7 +7,7 @@ test('supports concurrency option', function (t) {
 
   var timeouts = [10, 20, 50, 100, 30, 15, 25]
 
-  var eventuateMap = chainable(function (options, map) {
+  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
     var idx = 0
     return function upstreamConsumer (data) {
       var self = this
@@ -22,12 +22,12 @@ test('supports concurrency option', function (t) {
       seriesTime   = null,
       parallelTime = null
 
-  eventuateMap(event, function (data) {
+  new EventuateMap(event, function (data) {
     return data.toUpperCase()
   }).consume(function (l) {
     parallelTime = Date.now() - startTime
   })
-  eventuateMap(event, { concurrency: 1 }, function (data) {
+  new EventuateMap(event, { concurrency: 1 }, function (data) {
     return data.toUpperCase()
   }).consume(function (l) {
     seriesTime = Date.now() - startTime
@@ -57,7 +57,7 @@ test('concurrency and order work together', function (t) {
 
   var timeouts = [10, 20, 50, 100, 30, 15, 25]
 
-  var eventuateMap = chainable(function (options, map) {
+  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
     var idx = 0
     return function upstreamConsumer (data) {
       var self = this
@@ -70,12 +70,12 @@ test('concurrency and order work together', function (t) {
   var event = eventuate(),
       unorderedList = [],
       orderedList   = []
-  eventuateMap(event, { concurrency: 2 }, function (data) {
+  new EventuateMap(event, { concurrency: 2 }, function (data) {
     return data.toUpperCase()
   }).consume(function (l) {
     unorderedList.push(l)
   })
-  eventuateMap(event, { order: true, concurency: 2 }, function (data) {
+  new EventuateMap(event, { order: true, concurency: 2 }, function (data) {
     return data.toUpperCase()
   }).consume(function (l) {
     orderedList.push(l)

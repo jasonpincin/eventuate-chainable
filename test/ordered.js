@@ -7,7 +7,7 @@ test('gaurantees order when asked', function (t) {
 
   var timeouts = [10, 20, 50, 100, 30, 15, 25]
 
-  var eventuateMap = chainable(function (options, map) {
+  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
     var idx = 0
     return function upstreamConsumer (data) {
       var self = this
@@ -20,12 +20,12 @@ test('gaurantees order when asked', function (t) {
   var event = eventuate(),
       unorderedList = [],
       orderedList   = []
-  eventuateMap(event, function (data) {
+  new EventuateMap(event, function (data) {
     return data.toUpperCase()
   }).consume(function (l) {
     unorderedList.push(l)
   })
-  eventuateMap(event, { order: true }, function (data) {
+  new EventuateMap(event, { order: true }, function (data) {
     return data.toUpperCase()
   }).consume(function (l) {
     orderedList.push(l)
@@ -51,7 +51,7 @@ test('sequence should reset when queue catches up', function (t) {
 
   var timeouts = [50, 20]
 
-  var eventuateMap = chainable(function (options, map) {
+  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
     var idx = 0
     return function upstreamConsumer (data) {
       var self = this
@@ -66,7 +66,7 @@ test('sequence should reset when queue catches up', function (t) {
   })
 
   var event = eventuate()
-  eventuateMap(event, { order: true }, function (data) {
+  new EventuateMap(event, { order: true }, function (data) {
     return data.toUpperCase()
   }).consume(function (l) {})
 
@@ -84,7 +84,7 @@ test('calling finish twice has no affect', function (t) {
 
   var timeouts = [50, 20]
 
-  var eventuateMap = chainable(function (options, map) {
+  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
     var idx = 0
     return function upstreamConsumer (data) {
       var self = this
@@ -96,12 +96,12 @@ test('calling finish twice has no affect', function (t) {
   })
 
   var event = eventuate()
-  eventuateMap(event, { order: true }, function (data) {
+  new EventuateMap(event, { order: true }, function (data) {
     return data.toUpperCase()
   }).consume(function (l) {})
 
   var orderedList = []
-  eventuateMap(event, { order: true }, function (data) {
+  new EventuateMap(event, { order: true }, function (data) {
     return data.toUpperCase()
   }).consume(function (l) {
     orderedList.push(l)
@@ -120,7 +120,7 @@ test('does not attempt to produce if destroyed', function (t) {
   var timeouts = [10, 20, 50, 100, 30, 15, 25],
       count    = 0
 
-  var eventuateMap = chainable(function (options, map) {
+  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
     var idx = 0
     return function upstreamConsumer (data) {
       var self = this
@@ -132,7 +132,7 @@ test('does not attempt to produce if destroyed', function (t) {
   })
 
   var event = eventuate()
-  var ucEvent = eventuateMap(event, function (data) {
+  var ucEvent = new EventuateMap(event, function (data) {
     return data.toUpperCase()
   })
   ucEvent.consume(function () {

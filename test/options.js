@@ -1,3 +1,4 @@
+/*eslint no-new:0*/
 var test      = require('tape'),
     eventuate = require('eventuate-core'),
     chainable = require('..')
@@ -6,33 +7,38 @@ test('factories accept default and create options', function (t) {
   t.plan(12)
 
   var event = eventuate()
-  chainable({ defaulted: 'hello' }, function (options) {
+  new (chainable(eventuate.constructor, {
+    defaulted: 'hello'
+  }, function (options) {
     t.equal(options.defaulted, 'hello')
     t.equal(options.lazy, true)
     t.equal(options.destroyResidual, true)
     return upstreamConsumer
-  })(event)
+  }))(event)
 
-  chainable({ defaulted: 'hello', overridden: 'goodbye' }, function (options) {
+  new (chainable(eventuate.constructor, {
+    defaulted : 'hello',
+    overridden: 'goodbye'
+  }, function (options) {
     t.equal(options.defaulted, 'hello')
     t.equal(options.overridden, 'world')
     t.equal(options.lazy, true)
     t.equal(options.destroyResidual, true)
     return upstreamConsumer
-  })(event, { overridden: 'world' })
+  }))(event, { overridden: 'world' })
 
-  chainable(function (options) {
+  new (chainable(eventuate.constructor, function (options) {
     t.equal(options.overridden, 'world')
     t.equal(options.lazy, true)
     t.equal(options.destroyResidual, true)
     return upstreamConsumer
-  })(event, { overridden: 'world' })
+  }))(event, { overridden: 'world' })
 
-  chainable(function (options) {
+  new (chainable(eventuate.constructor, function (options) {
     t.equal(options.lazy, true)
     t.equal(options.destroyResidual, true)
     return upstreamConsumer
-  })(event)
+  }))(event)
 
   function upstreamConsumer () {}
 })
@@ -42,7 +48,7 @@ test('setting create options do not change default options', function (t) {
 
   var callNum = 0
   var event = eventuate()
-  var chain = chainable(function (options) {
+  var Chain = chainable(eventuate.constructor, function (options) {
     switch (callNum) {
       case 0:
         t.equal(options.lazy, true, 'lazy is true during 1st create')
@@ -59,7 +65,7 @@ test('setting create options do not change default options', function (t) {
     return function () {}
   })
 
-  chain(event)
-  chain(event, { lazy: false })
-  chain(event)
+  new Chain(event)
+  new Chain(event, { lazy: false })
+  new Chain(event)
 })

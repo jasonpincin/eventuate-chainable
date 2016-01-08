@@ -5,14 +5,14 @@ var test      = require('tape'),
 test('should be destroyed with upstream', function (t) {
   t.plan(2)
 
-  var eventuateMap = chainable(function (options, map) {
+  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
     return function upstreamConsumer (data) {
       this.produce(map(data)).finish()
     }
   })
 
   var event = eventuate()
-  var ucEvent = eventuateMap(event, function (data) {
+  var ucEvent = new EventuateMap(event, function (data) {
     return data.toUpperCase()
   })
 
@@ -24,40 +24,21 @@ test('should be destroyed with upstream', function (t) {
 test('does not lazily consume after being destroyed', function (t) {
   t.plan(2)
 
-  var eventuateMap = chainable(function (options, map) {
+  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
     return function upstreamConsumer (data) {
       this.produce(map(data)).finish()
     }
   })
 
   var event = eventuate()
-  var ucEvent = eventuateMap(event, function (data) {
+  var ucEvent = new EventuateMap(event, function (data) {
     return data.toUpperCase()
   })
 
   t.notOk(event.hasConsumer(ucEvent.upstreamConsumer),
           'consumer NOT in upstream')
   ucEvent.destroy()
-  ucEvent(function () {})
+  ucEvent.consume(function () {})
   t.notOk(event.hasConsumer(ucEvent.upstreamConsumer),
           'consumer NOT in upstream')
-})
-
-test('should remove upstream destroy handler', function (t) {
-  t.plan(2)
-
-  var eventuateMap = chainable(function (options, map) {
-    return function upstreamConsumer (data) {
-      this.produce(map(data)).finish()
-    }
-  })
-
-  var event = eventuate()
-  var ucEvent = eventuateMap(event, function (data) {
-    return data.toUpperCase()
-  })
-
-  t.ok(event.destroyed.hasConsumer())
-  ucEvent.destroy()
-  t.ok(!event.destroyed.hasConsumer())
 })

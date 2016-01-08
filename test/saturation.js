@@ -5,7 +5,7 @@ var test      = require('tape'),
 test('supports saturation', function (t) {
   t.plan(4)
 
-  var eventuateMap = chainable(function (options, map) {
+  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
     return function upstreamConsumer (data) {
       var self = this
       setTimeout(function () {
@@ -15,7 +15,9 @@ test('supports saturation', function (t) {
   })
 
   var event        = eventuate()
-  var eventMapped  = eventuateMap(event, { concurrency: 1 }, function (data) {
+  var eventMapped  = new EventuateMap(event, {
+    concurrency: 1
+  }, function (data) {
     return data.toUpperCase()
   })
   eventMapped.consume(function (data) {
@@ -32,7 +34,7 @@ test('supports saturation', function (t) {
 test('saturation prior to upstream consumption ok', function (t) {
   t.plan(1)
 
-  var eventuateMap = chainable(function (options, map) {
+  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
     return function upstreamConsumer (data) {
       var self = this
       setTimeout(function () {
@@ -42,7 +44,9 @@ test('saturation prior to upstream consumption ok', function (t) {
   })
 
   var event        = eventuate()
-  var eventMapped  = eventuateMap(event, { concurrency: 1 }, function (data) {
+  var eventMapped  = new EventuateMap(event, {
+    concurrency: 1
+  }, function (data) {
     return data.toUpperCase()
   })
 
@@ -54,20 +58,22 @@ test('saturation prior to upstream consumption ok', function (t) {
 test('respects consumer saturation', function (t) {
   t.plan(2)
 
-  var eventuateMap = chainable(function (options, map) {
+  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
     return function upstreamConsumer (data) {
       this.produce(map(data)).finish()
     }
   })
 
   var event        = eventuate()
-  var eventMapped  = eventuateMap(event, { concurrency: 1 }, function (data) {
+  var eventMapped  = new EventuateMap(event, {
+    concurrency: 1
+  }, function (data) {
     return data.toUpperCase()
   })
-  eventMapped.saturated(function () {
+  eventMapped.on('saturated', function () {
     t.pass('got saturated event')
   })
-  eventMapped.unsaturated(function () {
+  eventMapped.on('unsaturated', function () {
     t.pass('got unsaturated event')
   })
   var consumption = eventMapped.consume(consumer)
@@ -80,7 +86,7 @@ test('respects consumer saturation', function (t) {
 test('unsaturated consumer ignored when locally saturated', function (t) {
   t.plan(3)
 
-  var eventuateMap = chainable(function (options, map) {
+  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
     return function upstreamConsumer (data) {
       var self = this
       setTimeout(function () {
@@ -91,16 +97,16 @@ test('unsaturated consumer ignored when locally saturated', function (t) {
 
   var saturated   = false
   var event       = eventuate()
-  var eventMapped = eventuateMap(event, {
+  var eventMapped = new EventuateMap(event, {
     lazy       : false,
     concurrency: 1
   }, function (data) {
     return data.toUpperCase()
   })
-  eventMapped.saturated(function () {
+  eventMapped.on('saturated', function () {
     saturated = true
   })
-  eventMapped.unsaturated(function () {
+  eventMapped.on('unsaturated', function () {
     saturated = false
   })
   event.produce('a')

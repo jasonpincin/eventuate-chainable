@@ -4,6 +4,8 @@ var assign          = require('object-assign'),
 module.exports = createConstructor
 
 function createConstructor (Super, defaults, producerFactory) {
+  if (typeof Super.isEventuate !== 'function')
+    throw new TypeError('first argument should be an Eventuate constructor')
   if (typeof defaults === 'function') {
     producerFactory = defaults
     defaults = undefined
@@ -21,7 +23,7 @@ function createConstructor (Super, defaults, producerFactory) {
     Super.call(this, options)
 
     var self      = this,
-        hasopts   = (typeof options !== 'function'),
+        hasopts   = (typeof options === 'object'),
         _options  = assign({}, defaults, hasopts ? options : {})
 
     assign(this, {
@@ -37,6 +39,7 @@ function createConstructor (Super, defaults, producerFactory) {
       _upstreamConsumption : null,
       _upstream            : upstream,
       _destroying          : false,
+      _destroySelfSoon     : _destroySelfSoon,
       _producer            : producerFactory.apply(
         undefined,
         [_options].concat(Array.prototype.slice.call(
@@ -72,7 +75,7 @@ function createConstructor (Super, defaults, producerFactory) {
 
     function unsaturated () {
       if (self._upstreamConsumption)
-        self._upstreamConsumption.saturated()
+        self._upstreamConsumption.unsaturated()
     }
 
     function destroyed () {
@@ -93,6 +96,10 @@ function createConstructor (Super, defaults, producerFactory) {
 
     function upstreamErrorConsumer (err) {
       self.produceError(err)
+    }
+
+    function _destroySelfSoon () {
+      self._destroySoon()
     }
   }
   assign(Eventuate.prototype, Super.prototype, {
@@ -161,18 +168,24 @@ function _addUpstreamConsumer () {
       this.upstreamConsumer,
       this.upstreamErrorConsumer
     )
+    this._upstreamConsumption.once('end', this._destroySelfSoon)
   }
 }
 
 function _removeUpstreamConsumer () {
   if (this._upstreamConsumption) {
+    this._upstreamConsumption.removeListener('end', this._destroySelfSoon)
     this._upstreamConsumption.end()
   }
 }
 
 function _destroySoon () {
-  this._destroying = true
-  this._removeUpstreamConsumer()
+  if (!this._outstanding)
+    this.destroy()
+  else {
+    this._destroying = true
+    this._removeUpstreamConsumer()
+  }
 }
 
 function _consumerUnsaturated (consumer) {

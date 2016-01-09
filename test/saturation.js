@@ -5,7 +5,7 @@ var test      = require('tape'),
 test('supports saturation', function (t) {
   t.plan(4)
 
-  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
+  var EventuateMap = chainable(eventuate, function (options, map) {
     return function upstreamConsumer (data) {
       var self = this
       setTimeout(function () {
@@ -34,7 +34,7 @@ test('supports saturation', function (t) {
 test('saturation prior to upstream consumption ok', function (t) {
   t.plan(1)
 
-  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
+  var EventuateMap = chainable(eventuate, function (options, map) {
     return function upstreamConsumer (data) {
       var self = this
       setTimeout(function () {
@@ -58,7 +58,7 @@ test('saturation prior to upstream consumption ok', function (t) {
 test('respects consumer saturation', function (t) {
   t.plan(2)
 
-  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
+  var EventuateMap = chainable(eventuate, function (options, map) {
     return function upstreamConsumer (data) {
       this.produce(map(data)).finish()
     }
@@ -86,7 +86,7 @@ test('respects consumer saturation', function (t) {
 test('unsaturated consumer ignored when locally saturated', function (t) {
   t.plan(3)
 
-  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
+  var EventuateMap = chainable(eventuate, function (options, map) {
     return function upstreamConsumer (data) {
       var self = this
       setTimeout(function () {
@@ -127,7 +127,7 @@ test('unsaturated consumer ignored when locally saturated', function (t) {
 test('unsaturated event w/o upstream consumer does not throw', function (t) {
   t.plan(1)
 
-  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
+  var EventuateMap = chainable(eventuate, function (options, map) {
     return function upstreamConsumer (data) {
       this.produce(map(data)).finish()
     }

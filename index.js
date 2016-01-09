@@ -3,13 +3,18 @@ var assign          = require('object-assign'),
 
 module.exports = createConstructor
 
-function createConstructor (Super, defaults, producerFactory) {
-  if (typeof Super !== 'function' || typeof Super.isEventuate !== 'function')
+function createConstructor (factory, defaults, producerFactory) {
+  if (typeof factory !== 'function' ||
+      typeof factory.isEventuate !== 'function')
     throw new TypeError('first argument should be an Eventuate constructor')
   if (typeof defaults === 'function') {
     producerFactory = defaults
     defaults = undefined
   }
+
+  var Super = factory.constructor.isEventuate
+    ? factory.constructor
+    : factory
   defaults = assign({
     lazy           : true,
     order          : false,

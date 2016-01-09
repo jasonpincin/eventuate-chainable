@@ -7,7 +7,7 @@ test('gaurantees order when asked', function (t) {
 
   var timeouts = [10, 20, 50, 100, 30, 15, 25]
 
-  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
+  var EventuateMap = chainable(eventuate, function (options, map) {
     var idx = 0
     return function upstreamConsumer (data) {
       var self = this
@@ -51,7 +51,7 @@ test('sequence should reset when queue catches up', function (t) {
 
   var timeouts = [50, 20]
 
-  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
+  var EventuateMap = chainable(eventuate, function (options, map) {
     var idx = 0
     return function upstreamConsumer (data) {
       var self = this
@@ -84,7 +84,7 @@ test('calling finish twice has no affect', function (t) {
 
   var timeouts = [50, 20]
 
-  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
+  var EventuateMap = chainable(eventuate, function (options, map) {
     var idx = 0
     return function upstreamConsumer (data) {
       var self = this
@@ -120,7 +120,7 @@ test('does not attempt to produce if destroyed', function (t) {
   var timeouts = [10, 20, 50, 100, 30, 15, 25],
       count    = 0
 
-  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
+  var EventuateMap = chainable(eventuate, function (options, map) {
     var idx = 0
     return function upstreamConsumer (data) {
       var self = this

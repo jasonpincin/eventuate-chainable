@@ -5,7 +5,7 @@ var test      = require('tape'),
 test('errors received', function (t) {
   t.plan(1)
 
-  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
+  var EventuateMap = chainable(eventuate, function (options, map) {
     return function upstreamConsumer (data) {
       this.produceError(new Error('boom')).finish()
     }
@@ -23,7 +23,7 @@ test('errors received', function (t) {
 test('upstream errors are propogated', function (t) {
   t.plan(1)
 
-  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
+  var EventuateMap = chainable(eventuate, function (options, map) {
     return function upstreamConsumer (data) {
       this.produce(map(data)).finish()
     }

@@ -5,7 +5,7 @@ var test      = require('tape'),
 test('produced eventuate lazily consumes by default', function (t) {
   t.plan(2)
 
-  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
+  var EventuateMap = chainable(eventuate, function (options, map) {
     return function upstreamConsumer (data) {
       this.produce(map(data)).finish()
     }
@@ -26,7 +26,7 @@ test('produced eventuate lazily consumes by default', function (t) {
 test('produced eventuate eagerly consumes with lazy = false', function (t) {
   t.plan(2)
 
-  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
+  var EventuateMap = chainable(eventuate, function (options, map) {
     return function upstreamConsumer (data) {
       this.produce(map(data)).finish()
     }

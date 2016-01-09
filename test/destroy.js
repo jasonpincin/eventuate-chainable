@@ -5,7 +5,7 @@ var test      = require('tape'),
 test('should be destroyed with upstream', function (t) {
   t.plan(2)
 
-  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
+  var EventuateMap = chainable(eventuate, function (options, map) {
     return function upstreamConsumer (data) {
       this.produce(map(data)).finish()
     }
@@ -24,7 +24,7 @@ test('should be destroyed with upstream', function (t) {
 test('does not lazily consume after being destroyed', function (t) {
   t.plan(2)
 
-  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
+  var EventuateMap = chainable(eventuate, function (options, map) {
     return function upstreamConsumer (data) {
       this.produce(map(data)).finish()
     }

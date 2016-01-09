@@ -7,7 +7,7 @@ test('factories accept default and create options', function (t) {
   t.plan(12)
 
   var event = eventuate()
-  new (chainable(eventuate.constructor, {
+  new (chainable(eventuate, {
     defaulted: 'hello'
   }, function (options) {
     t.equal(options.defaulted, 'hello')
@@ -16,7 +16,7 @@ test('factories accept default and create options', function (t) {
     return upstreamConsumer
   }))(event)
 
-  new (chainable(eventuate.constructor, {
+  new (chainable(eventuate, {
     defaulted : 'hello',
     overridden: 'goodbye'
   }, function (options) {
@@ -27,14 +27,14 @@ test('factories accept default and create options', function (t) {
     return upstreamConsumer
   }))(event, { overridden: 'world' })
 
-  new (chainable(eventuate.constructor, function (options) {
+  new (chainable(eventuate, function (options) {
     t.equal(options.overridden, 'world')
     t.equal(options.lazy, true)
     t.equal(options.destroyResidual, true)
     return upstreamConsumer
   }))(event, { overridden: 'world' })
 
-  new (chainable(eventuate.constructor, function (options) {
+  new (chainable(eventuate, function (options) {
     t.equal(options.lazy, true)
     t.equal(options.destroyResidual, true)
     return upstreamConsumer
@@ -48,7 +48,7 @@ test('setting create options do not change default options', function (t) {
 
   var callNum = 0
   var event = eventuate()
-  var Chain = chainable(eventuate.constructor, function (options) {
+  var Chain = chainable(eventuate, function (options) {
     switch (callNum) {
       case 0:
         t.equal(options.lazy, true, 'lazy is true during 1st create')

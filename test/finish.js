@@ -6,7 +6,7 @@ var test          = require('tape'),
 test('cannot produce after finish', function (t) {
   t.plan(2)
 
-  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
+  var EventuateMap = chainable(eventuate, function (options, map) {
     return function upstreamConsumer (data) {
       var self = this
       this.produce(map(data)).finish()

@@ -5,7 +5,7 @@ var test      = require('tape'),
 test('residual chainable eventuate destroyed by default', function (t) {
   t.plan(1)
 
-  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
+  var EventuateMap = chainable(eventuate, function (options, map) {
     return function upstreamConsumer (data) {
       this.produce(map(data)).finish()
     }
@@ -24,7 +24,7 @@ test('residual chainable eventuate destroyed by default', function (t) {
 test('residual not destroyed if destroyResidual = false', function (t) {
   t.plan(1)
 
-  var EventuateMap = chainable(eventuate.constructor, {
+  var EventuateMap = chainable(eventuate, {
     destroyResidual: false
   }, function (options, map) {
     return function upstreamConsumer (data) {

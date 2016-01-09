@@ -5,7 +5,7 @@ var test      = require('tape'),
 test('upstream consumer removed when chainable is destroyed', function (t) {
   t.plan(2)
 
-  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
+  var EventuateMap = chainable(eventuate, function (options, map) {
     return function upstreamConsumer (data) {
       this.produce(map(data)).finish()
     }
@@ -27,7 +27,7 @@ test('upstream consumer removed when chainable is destroyed', function (t) {
 test('upstream consumer not added if chainable destroyed', function (t) {
   t.plan(2)
 
-  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
+  var EventuateMap = chainable(eventuate, function (options, map) {
     return function upstreamConsumer (data) {
       this.produce(map(data)).finish()
     }
@@ -51,7 +51,7 @@ test('chainable destroyed soon when upstream consumer removed', function (t) {
 
   var timeouts = [10, 20, 50, 100, 30, 15, 25]
 
-  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
+  var EventuateMap = chainable(eventuate, function (options, map) {
     var idx = 0
     return function upstreamConsumer (data) {
       var self = this

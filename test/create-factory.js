@@ -5,7 +5,7 @@ var test      = require('tape'),
 test('should create a mapper', function (t) {
   t.plan(1)
 
-  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
+  var EventuateMap = chainable(eventuate, function (options, map) {
     return function upstreamConsumer (data) {
       this.produce(map(data)).finish()
     }

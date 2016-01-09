@@ -7,7 +7,7 @@ test('supports concurrency option', function (t) {
 
   var timeouts = [10, 20, 50, 100, 30, 15, 25]
 
-  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
+  var EventuateMap = chainable(eventuate, function (options, map) {
     var idx = 0
     return function upstreamConsumer (data) {
       var self = this
@@ -57,7 +57,7 @@ test('concurrency and order work together', function (t) {
 
   var timeouts = [10, 20, 50, 100, 30, 15, 25]
 
-  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
+  var EventuateMap = chainable(eventuate, function (options, map) {
     var idx = 0
     return function upstreamConsumer (data) {
       var self = this

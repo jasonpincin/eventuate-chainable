@@ -1,29 +1,8 @@
-var eventuate          = require('eventuate-core'),
-    eventuateChainable = require('..')
-
-// function eventuateMap (upstream, options, map) {
-//
-//   var eventuate = upstream.factory(options)
-//   assign(eventuate, chainable.properties)
-//   chainable.call(eventuate, upstream, options, function forEach (value) {
-//     this.produce(map(value))
-//     // or eventuate.produceError(err)
-//     this.finish()
-//   })
-// }
-//
-// Function EventuateMap (upstream, options, map) {
-//   chainable.call(this, upstream, options, function forEachValue (value) {
-//     this.produce(map(value))
-//     this.finish()
-//   })
-// }
-// assign(EventuateMap.prototype, chainable.properties, {
-//   constructor: EventuateMap
-// })
+var eventuate = require('eventuate-core'),
+    chainable = require('..')
 
 // create a chainable eventuate mapper
-var map = eventuateChainable(function eventuateMap (options, map) {
+var EventuateMap = chainable(eventuate, function eventuateMap (options, map) {
   return function forEachValue (value) {
     this.produce(map(value))
     this.finish()
@@ -34,12 +13,12 @@ var map = eventuateChainable(function eventuateMap (options, map) {
 var numbers = eventuate()
 
 // map the eventuate using the chainable mapper we created above
-var squareNumbers = map(numbers, function (num) {
+var squareNumbers = new EventuateMap(numbers, function (num) {
   return num * num
 })
 
 // log anything produced by squareNumbers
-squareNumbers(console.log)
+squareNumbers.consume(console.log)
 
 // produce stuff on numbers, the square of it is logged via squareNumbers
 numbers.produce(1)

@@ -4,7 +4,7 @@ var assign          = require('object-assign'),
 module.exports = createConstructor
 
 function createConstructor (Super, defaults, producerFactory) {
-  if (typeof Super.isEventuate !== 'function')
+  if (typeof Super !== 'function' || typeof Super.isEventuate !== 'function')
     throw new TypeError('first argument should be an Eventuate constructor')
   if (typeof defaults === 'function') {
     producerFactory = defaults

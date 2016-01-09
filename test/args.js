@@ -5,13 +5,19 @@ var test      = require('tape'),
 
 test('requires an eventuate constructor', function (t) {
   t.plan(1)
-  t.throws(chainable)
+  t.throws(chainable, TypeError)
 })
 
 test('chainable factory is passed options, and all other args', function (t) {
-  t.plan(10)
+  t.plan(11)
 
   var event = eventuate()
+  t.throws(function () {
+    new (chainable(eventuate.constructor, function (options) {
+      return upstreamConsumer
+    }))(1, 2)
+  }, TypeError)
+
   new (chainable(eventuate.constructor, {
     defaulted: 'hello'
   }, function (options) {

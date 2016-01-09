@@ -4,7 +4,7 @@ var test          = require('tape'),
     FinishedError = require('../errors').FinishedError
 
 test('cannot produce after finish', function (t) {
-  t.plan(1)
+  t.plan(2)
 
   var EventuateMap = chainable(eventuate.constructor, function (options, map) {
     return function upstreamConsumer (data) {
@@ -12,6 +12,9 @@ test('cannot produce after finish', function (t) {
       this.produce(map(data)).finish()
       t.throws(function () {
         self.produce(map(data))
+      }, FinishedError)
+      t.throws(function () {
+        self.produceError(new Error('boom'))
       }, FinishedError)
     }
   })

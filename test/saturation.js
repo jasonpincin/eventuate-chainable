@@ -123,3 +123,21 @@ test('unsaturated consumer ignored when locally saturated', function (t) {
 
   function consumer () {}
 })
+
+test('unsaturated event w/o upstream consumer does not throw', function (t) {
+  t.plan(1)
+
+  var EventuateMap = chainable(eventuate.constructor, function (options, map) {
+    return function upstreamConsumer (data) {
+      this.produce(map(data)).finish()
+    }
+  })
+
+  var event       = eventuate()
+  var eventMapped = new EventuateMap(event, function (data) {
+    return data.toUpperCase()
+  })
+  t.doesNotThrow(function () {
+    eventMapped.emit('unsaturated')
+  })
+})

@@ -46,7 +46,7 @@ function createConstructor (factory, defaults, producerFactory) {
       _destroying          : false,
       _destroySelfSoon     : _destroySelfSoon,
       _producer            : producerFactory.apply(
-        undefined,
+        this,
         [_options].concat(Array.prototype.slice.call(
           arguments,
           hasopts ? 2 : 1
